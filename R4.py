@@ -20,15 +20,26 @@ def dist(d1, d2): 				#position fin colonne
 def idist(d1, d2): 				#incertitude sur la position
 	return np.abs((d1-d2)/2)
 
-def beta(l1, l2):
+def beta(l1, l2): 				#retourne k (beta) le vecteur d'onde
 	l = np.abs(l1-l2)*2
 	return 2*np.pi/l
 
-def z(z1, z2): 
+def z(z1, z2): 					
 	return (z1+z2)/2
+
+def densite(x):					#Le gros polynome pour 1/sqrt(n_e)	x = k
+	rapport = -1E-12*x**6 + 7E-10*x**5 - 2E-07*x**4 + 2E-05*x**3 - 0.0012*x**2 + 0.0421*x - 0.3292	
+	densite = (omega**2)*me*epsilon0/(rapport*e**2)
+	return densite
 
 ###########################################################
 # Définition des constantes
+
+#constantes pour fct densité
+omega = 2*np.pi*600e6			#2pi*f (600 MHz)
+me = 9.10938356e-31 			#masse au repos d'un électron (kg)
+epsilon0 = 8.8518782e-12		#permittivité du vide (m-3kg-1s4)
+e = 1.60217662e-19				#charge électronique (C)
 
 # lecture des données txt
 diagphase = np.loadtxt('diagramme_de_phase.txt')
@@ -104,17 +115,17 @@ z1h = z(tab1m[124, 0], tab1m[104, 0])
 k1j = beta(tab1m[124, 1], tab1m[139, 1])
 z1j = z(tab1m[124, 0], tab1m[139, 0])
 
-tabLambda1 = np.zeros((9,2))
-tabLambda1[0,:] = k1a, z1a
-tabLambda1[1,:] = k1b, z1b
-tabLambda1[2,:] = k1c, z1c
-tabLambda1[3,:] = k1d, z1d
-tabLambda1[4,:] = k1e, z1e
-tabLambda1[5,:] = k1f, z1f
-tabLambda1[6,:] = k1g, z1g
-tabLambda1[7,:] = k1h, z1h
-tabLambda1[8,:] = k1j, z1j
-print(tabLambda1)
+tabk1 = np.zeros((9,2))
+tabk1[0,:] = k1a, z1a
+tabk1[1,:] = k1b, z1b
+tabk1[2,:] = k1c, z1c
+tabk1[3,:] = k1d, z1d
+tabk1[4,:] = k1e, z1e
+tabk1[5,:] = k1f, z1f
+tabk1[6,:] = k1g, z1g
+tabk1[7,:] = k1h, z1h
+tabk1[8,:] = k1j, z1j
+print(tabk1)
 
 #Pi = 0.245 & Pr = 0.02
 plt.title('2')
@@ -150,16 +161,16 @@ z2i = z(tab2m[106, 0], tab2m[129,0])
 k2j = beta(tab2m[129, 1], tab2m[150, 1])
 z2j = z(tab2m[129, 0], tab2m[150,0])  
 
-tabLambda2 = np.zeros((9,2))
-tabLambda2[0,:] = k2a, z2a
-tabLambda2[1,:] = k2b, z2b
-tabLambda2[2,:] = k2c, z2c
-tabLambda2[3,:] = k2d, z2d
-tabLambda2[4,:] = k2e, z2e
-tabLambda2[5,:] = k2f, z2f
-tabLambda2[6,:] = k2g, z2g
-tabLambda2[7,:] = k2h, z2h
-tabLambda2[8,:] = k2j, z2j
+tabk2 = np.zeros((9,2))
+tabk2[0,:] = k2a, z2a
+tabk2[1,:] = k2b, z2b
+tabk2[2,:] = k2c, z2c
+tabk2[3,:] = k2d, z2d
+tabk2[4,:] = k2e, z2e
+tabk2[5,:] = k2f, z2f
+tabk2[6,:] = k2g, z2g
+tabk2[7,:] = k2h, z2h
+tabk2[8,:] = k2j, z2j
 
 #Pi = 0.290 & Pr = 0.025
 plt.title('3')
@@ -195,16 +206,16 @@ z3i = z(tab3m[115, 0], tab3m[142, 0])
 k3j = beta(tab3m[142, 1], tab3m[163, 1])
 z3j = z(tab3m[142, 0], tab3m[163, 0])
 
-tabLambda3 = np.zeros((9,2))
-tabLambda3[0,:] = k3a, z3a
-tabLambda3[1,:] = k3b, z3b
-tabLambda3[2,:] = k3c, z3c
-tabLambda3[3,:] = k3d, z3d
-tabLambda3[4,:] = k3e, z3e
-tabLambda3[5,:] = k3f, z3f
-tabLambda3[6,:] = k3g, z3g
-tabLambda3[7,:] = k3h, z3h
-tabLambda3[8,:] = k3j, z3j
+tabk3 = np.zeros((9,2))
+tabk3[0,:] = k3a, z3a
+tabk3[1,:] = k3b, z3b
+tabk3[2,:] = k3c, z3c
+tabk3[3,:] = k3d, z3d
+tabk3[4,:] = k3e, z3e
+tabk3[5,:] = k3f, z3f
+tabk3[6,:] = k3g, z3g
+tabk3[7,:] = k3h, z3h
+tabk3[8,:] = k3j, z3j
 
 #Pi = 0.35 & Pr = 0.021
 plt.title('4')
@@ -240,16 +251,16 @@ z4i = z(tab4m[119, 0], tab4m[147, 0])
 k4j = beta(tab4m[147, 1], tab4m[170, 1])
 z4j = z(tab4m[147, 0], tab4m[170, 0])
 
-tabLambda4 = np.zeros((9,2))
-tabLambda4[0,:] = k4a, z4a
-tabLambda4[1,:] = k4b, z4b
-tabLambda4[2,:] = k4c, z4c
-tabLambda4[3,:] = k4d, z4d
-tabLambda4[4,:] = k4e, z4e
-tabLambda4[5,:] = k4f, z4f
-tabLambda4[6,:] = k4g, z4g
-tabLambda4[7,:] = k4h, z4h
-tabLambda4[8,:] = k4j, z4j
+tabk4 = np.zeros((9,2))
+tabk4[0,:] = k4a, z4a
+tabk4[1,:] = k4b, z4b
+tabk4[2,:] = k4c, z4c
+tabk4[3,:] = k4d, z4d
+tabk4[4,:] = k4e, z4e
+tabk4[5,:] = k4f, z4f
+tabk4[6,:] = k4g, z4g
+tabk4[7,:] = k4h, z4h
+tabk4[8,:] = k4j, z4j
 
 #Pi = 0.40 & Pr = 0.026
 plt.title('5')
@@ -285,16 +296,16 @@ z5i = z(tab5m[129, 0], tab5m[157, 0])
 k5j = beta(tab5m[157, 1], tab5m[185, 1])
 z5j = z(tab5m[157, 0], tab5m[185, 0])
 
-tabLambda5 = np.zeros((9,2))
-tabLambda5[0,:] = k5a, z5a
-tabLambda5[1,:] = k5b, z5b
-tabLambda5[2,:] = k5c, z5c
-tabLambda5[3,:] = k5d, z5d
-tabLambda5[4,:] = k5e, z5e
-tabLambda5[5,:] = k5f, z5f
-tabLambda5[6,:] = k5g, z5g
-tabLambda5[7,:] = k5h, z5h
-tabLambda5[8,:] = k5j, z5j
+tabk5 = np.zeros((9,2))
+tabk5[0,:] = k5a, z5a
+tabk5[1,:] = k5b, z5b
+tabk5[2,:] = k5c, z5c
+tabk5[3,:] = k5d, z5d
+tabk5[4,:] = k5e, z5e
+tabk5[5,:] = k5f, z5f
+tabk5[6,:] = k5g, z5g
+tabk5[7,:] = k5h, z5h
+tabk5[8,:] = k5j, z5j
 
 #Pi = 0.47 & Pr = 0.025
 plt.title('6')
@@ -330,16 +341,16 @@ z6i = z(tab6m[135, 0], tab6m[168, 0])
 k6j = beta(tab6m[168, 1], tab6m[198, 1])
 z6j = z(tab6m[168, 0], tab6m[198, 0])
 
-tabLambda6 = np.zeros((9,2))
-tabLambda6[0,:] = k6a, z6a
-tabLambda6[1,:] = k6b, z6b
-tabLambda6[2,:] = k6c, z6c
-tabLambda6[3,:] = k6d, z6d
-tabLambda6[4,:] = k6e, z6e
-tabLambda6[5,:] = k6f, z6f
-tabLambda6[6,:] = k6g, z6g
-tabLambda6[7,:] = k6h, z6h
-tabLambda6[8,:] = k6j, z6j
+tabk6 = np.zeros((9,2))
+tabk6[0,:] = k6a, z6a
+tabk6[1,:] = k6b, z6b
+tabk6[2,:] = k6c, z6c
+tabk6[3,:] = k6d, z6d
+tabk6[4,:] = k6e, z6e
+tabk6[5,:] = k6f, z6f
+tabk6[6,:] = k6g, z6g
+tabk6[7,:] = k6h, z6h
+tabk6[8,:] = k6j, z6j
 
 #Pi = 0.54 & Pr = 0.028
 plt.title('7')
@@ -374,29 +385,24 @@ z7i = z(tab7m[140, 0], tab7m[174, 0])
 k7j = beta(tab7m[174, 1], tab7m[208, 1])
 z7j = z(tab7m[174, 0], tab7m[208, 0])
 
-tabLambda7 = np.zeros((9,2))
-tabLambda7[0,:] = k7a, z7a
-tabLambda7[1,:] = k7b, z7b
-tabLambda7[2,:] = k7c, z7c
-tabLambda7[3,:] = k7d, z7d
-tabLambda7[4,:] = k7e, z7e
-tabLambda7[5,:] = k7f, z7f
-tabLambda7[6,:] = k7g, z7g
-tabLambda7[7,:] = k7h, z7h
-tabLambda7[8,:] = k7j, z7j
+tabk7 = np.zeros((9,2))
+tabk7[0,:] = k7a, z7a
+tabk7[1,:] = k7b, z7b
+tabk7[2,:] = k7c, z7c
+tabk7[3,:] = k7d, z7d
+tabk7[4,:] = k7e, z7e
+tabk7[5,:] = k7f, z7f
+tabk7[6,:] = k7g, z7g
+tabk7[7,:] = k7h, z7h
+tabk7[8,:] = k7j, z7j
 
-###
+#calcul des densités électroniques
 
-def densite(x):
-#Le gros polynome pour 1/sqrt(n_e)
-#x = k
-	return -1E-12*x**6 + 7E-10*x**5 - 2E-07*x**4 + 2E-05*x**3 - 0.0012*x**2 + 0.0421*x - 0.3292
-
-plt.title('8')
+plt.title('densité électronique')
 plt.xlabel('position (cm)')
 plt.ylabel('densité électronique (???)')
-plt.scatter(tabLambda1[:,1], densite(2*np.pi/tabLambda1[:, 0]), color = 'c', marker = '.', label='1')
-#plt.scatter(tabLambda2[:,1], densite(2*np.pi/tabLambda2[:, 0]), color = 'b', marker = '.', label='2')
-#plt.scatter(tabLambda3[:,1], densite(2*np.pi/tabLambda3[:, 0]), color = 'r', marker = '.', label='3')
+plt.scatter(tabk1[:,1], densite(tabk1[:, 0]), color = 'c', marker = '.', label='1')
+#plt.scatter(tabk2[:,1], densite(tabk2[:, 0]), color = 'b', marker = '.', label='2')
+#plt.scatter(tabk3[:,1], densite(tabk3[:, 0]), color = 'r', marker = '.', label='3')
 plt.legend(loc='best')
 plt.show()

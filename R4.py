@@ -29,7 +29,7 @@ def z(z1, z2):
 
 def densite(x):					#Le gros polynome pour 1/sqrt(n_e)	x = k
 	rapport = -1E-12*x**6 + 7E-10*x**5 - 2E-07*x**4 + 2E-05*x**3 - 0.0012*x**2 + 0.0421*x - 0.3292	
-	densite = (omega**2)*me*epsilon0/(rapport*e**2)
+	densite = (omega**2)*me*epsilon0/((rapport**2)*(e**2))
 	return densite
 
 ###########################################################

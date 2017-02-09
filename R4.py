@@ -14,14 +14,14 @@ import matplotlib.pyplot as plt
 ###########################################################
 # Définition de fonctions locales
 
-def dist(d1, d2): 				#position fin colonne (en m)
-	return (d1+d2)/200
+def dist(d1, d2): 				#position fin colonne (en cm)
+	return 111.3 - (d1+d2)/2
 
-def idist(d1, d2): 				#incertitude sur la position (en m)
-	return np.abs((d1-d2)/200)
+def idist(d1, d2): 				#incertitude sur la position (en cm)
+	return np.abs((d1-d2)/2)
 
 def beta(l1, l2): 				#retourne k (beta) le vecteur d'onde (en m-1)
-	l = np.abs(l1-l2)*(200)
+	l = np.abs(l1-l2)*2
 	return 2*np.pi/l
 
 def z(z1, z2): 					#position antenne (en m)
@@ -30,7 +30,7 @@ def z(z1, z2): 					#position antenne (en m)
 def densite(x):					#Le gros polynome pour 1/sqrt(n_e)	x = k
 	rapport = -1E-12*x**6 + 7E-10*x**5 - 2E-07*x**4 + 2E-05*x**3 - 0.0012*x**2 + 0.0421*x - 0.3292	
 	densite = (omega**2)*me*epsilon0/((rapport**2)*(e**2))
-	return densite
+	return densite				#densité (cm-3)
 
 ###########################################################
 # Définition des constantes
@@ -39,7 +39,7 @@ def densite(x):					#Le gros polynome pour 1/sqrt(n_e)	x = k
 omega = 2*np.pi*600e6			#2pi*f (600 MHz)
 me = 9.10938356e-31 			#masse au repos d'un électron (kg)
 epsilon0 = 8.8518782e-12		#permittivité du vide (m-3kg-1s4A2)
-e = 1.60217662e-19				#charge électronique (C)
+e = 1.60217662e-19*1e6				#charge électronique (C)
 
 # lecture des données txt
 diagphase = np.loadtxt('diagramme_de_phase.txt')
@@ -163,7 +163,7 @@ tabk1[5,:] = k1f, z1f
 tabk1[6,:] = k1g, z1g
 tabk1[7,:] = k1h, z1h
 tabk1[8,:] = k1j, z1j
-print(tabk1)
+tabk1[:, 1] = d1 - tabk1[:, 1]
 
 #Pi = 0.245 & Pr = 0.02
 plt.title('2')
@@ -209,6 +209,8 @@ tabk2[5,:] = k2f, z2f
 tabk2[6,:] = k2g, z2g
 tabk2[7,:] = k2h, z2h
 tabk2[8,:] = k2j, z2j
+tabk2[:, 1] = d2 - tabk2[:, 1]
+print(tabk2)
 
 #Pi = 0.290 & Pr = 0.025
 plt.title('3')
@@ -254,6 +256,7 @@ tabk3[5,:] = k3f, z3f
 tabk3[6,:] = k3g, z3g
 tabk3[7,:] = k3h, z3h
 tabk3[8,:] = k3j, z3j
+tabk3[:, 1] = d3 - tabk3[:, 1]
 
 #Pi = 0.35 & Pr = 0.021
 plt.title('4')
@@ -299,6 +302,7 @@ tabk4[5,:] = k4f, z4f
 tabk4[6,:] = k4g, z4g
 tabk4[7,:] = k4h, z4h
 tabk4[8,:] = k4j, z4j
+tabk4[:, 1] = d4 - tabk4[:, 1]
 
 #Pi = 0.40 & Pr = 0.026
 plt.title('5')
@@ -344,6 +348,7 @@ tabk5[5,:] = k5f, z5f
 tabk5[6,:] = k5g, z5g
 tabk5[7,:] = k5h, z5h
 tabk5[8,:] = k5j, z5j
+tabk5[:, 1] = d5 - tabk5[:, 1]
 
 #Pi = 0.47 & Pr = 0.025
 plt.title('6')
@@ -389,6 +394,7 @@ tabk6[5,:] = k6f, z6f
 tabk6[6,:] = k6g, z6g
 tabk6[7,:] = k6h, z6h
 tabk6[8,:] = k6j, z6j
+tabk6[:, 1] = d6 - tabk6[:, 1]
 
 #Pi = 0.54 & Pr = 0.028
 plt.title('7')
@@ -433,15 +439,21 @@ tabk7[5,:] = k7f, z7f
 tabk7[6,:] = k7g, z7g
 tabk7[7,:] = k7h, z7h
 tabk7[8,:] = k7j, z7j
+tabk7[:, 1] = d7 - tabk7[:, 1]
 
 #calcul des densités électroniques
 
 plt.title('densité électronique')
 plt.xlabel('position (cm)')
-plt.ylabel('densité électronique (???)')
+plt.ylabel(r'densité électronique (cm$^{-3}$)')
+#plt.yscale('log')
 plt.scatter(tabk1[:, 1], densite(tabk1[:, 0]), color = 'c', marker = '.', label='1')
-#plt.scatter(tabk2[:,1], densite(tabk2[:, 0]), color = 'b', marker = '.', label='2')
-#plt.scatter(tabk3[:,1], densite(tabk3[:, 0]), color = 'r', marker = '.', label='3')
+plt.scatter(tabk2[:,1], densite(tabk2[:, 0]), color = 'b', marker = '.', label='2')
+plt.scatter(tabk3[:,1], densite(tabk3[:, 0]), color = 'r', marker = '.', label='3')
+plt.scatter(tabk4[:, 1], densite(tabk4[:, 0]), color = 'g', marker = '.', label='4')
+plt.scatter(tabk5[:,1], densite(tabk5[:, 0]), color = 'm', marker = '.', label='5')
+plt.scatter(tabk6[:,1], densite(tabk6[:, 0]), color = 'y', marker = '.', label='6')
+plt.scatter(tabk7[:,1], densite(tabk7[:, 0]), color = 'k', marker = '.', label='7')
 plt.legend(loc='best')
 plt.show()
 
@@ -482,6 +494,7 @@ tabk163[7, 0] = beta(tab163_m[207, 0], tab163_m[245, 0])
 tabk163[7, 1] = z(tab163_m[207, 0], tab163_m[245, 0])
 tabk163[8, 0] = beta(tab163_m[245, 0], tab163_m[271, 0])
 tabk163[8, 1] = z(tab163_m[245, 0], tab163_m[271, 0])
+tabk163[:, 1] = d163 - tabk163[:, 1]
 
 #Pi = 0.73 & Pr = 0.02
 plt.title('261')
@@ -515,6 +528,7 @@ tabk261[7, 0] = beta(tab261_m[197, 0], tab261_m[241, 0])
 tabk261[7, 1] = z(tab261_m[197, 0], tab261_m[241, 0])
 tabk261[8, 0] = beta(tab261_m[241, 0], tab261_m[282, 0])
 tabk261[8, 1] = z(tab261_m[241, 0], tab261_m[282, 0])
+tabk261[:, 1] = d261 - tabk261[:, 1]
 
 #Pi = 0.72 & Pr = 0.01
 plt.title('363')
@@ -526,8 +540,8 @@ plt.scatter(tab363_g[:, 0], tab363_g[:, 1], color = 'b', marker = '.', label='g'
 plt.legend(loc='best')
 plt.show()
 
-d363 = dist(49.3, 49.2)
-id363 = idist(49.3, 49.2)
+d363 = dist(24.6, 24.2)
+id363 = idist(24.6, 24.2)
 
 tabk363 = np.zeros((9,2))
 tabk363[0, 0] = beta(tab363_p[42, 0],tab363_p[107, 0])
@@ -548,6 +562,7 @@ tabk363[7, 0] = beta(tab363_m[191, 0], tab363_m[236, 0])
 tabk363[7, 1] = z(tab363_m[191, 0], tab363_m[236, 0])
 tabk363[8, 0] = beta(tab363_m[236, 0], tab363_m[272, 0])
 tabk363[8, 1] = z(tab363_m[236, 0], tab363_m[272, 0])
+tabk363[:, 1] = d363 - tabk363[:, 1]
 
 #Pi = 0.69 & Pr = 0
 plt.title('455')
@@ -581,6 +596,7 @@ tabk455[7, 0] = beta(tab455_m[206, 0], tab455_m[256, 0])
 tabk455[7, 1] = z(tab455_m[206, 0], tab455_m[256, 0])
 tabk455[8, 0] = beta(tab455_m[256, 0], tab455_m[295, 0])
 tabk455[8, 1] = z(tab455_m[256, 0], tab455_m[295, 0])
+tabk455[:, 1] = d455 - tabk455[:, 1]
 
 #Pi = 0.70 & Pr = 0.01
 plt.title('573')
@@ -614,6 +630,7 @@ tabk573[7, 0] = beta(tab573_m[214, 0], tab573_m[270, 0])
 tabk573[7, 1] = z(tab573_m[214, 0], tab573_m[270, 0])
 tabk573[8, 0] = beta(tab573_m[270, 0], tab573_m[306, 0])
 tabk573[8, 1] = z(tab573_m[270, 0], tab573_m[306, 0])
+tabk573[:, 1] = d573 - tabk573[:, 1]
 
 #Pi = 0.72 & Pr = 0.04 
 plt.title('665')
@@ -647,6 +664,7 @@ tabk665[7, 0] = beta(tab665_m[214, 0], tab665_m[275, 0])
 tabk665[7, 1] = z(tab665_m[214, 0], tab665_m[275, 0])
 tabk665[8, 0] = beta(tab665_m[275, 0], tab665_m[314, 0])
 tabk665[8, 1] = z(tab665_m[275, 0], tab665_m[314, 0])
+tabk665[:, 1] = d665 - tabk665[:, 1]
 
 #Pi = 0.62 & Pr = 0 
 plt.title('766')
@@ -680,6 +698,7 @@ tabk766[7, 0] = beta(tab766_m[219, 0], tab766_m[282, 0])
 tabk766[7, 1] = z(tab766_m[219, 0], tab766_m[282, 0])
 tabk766[8, 0] = beta(tab766_m[282, 0], tab766_m[323, 0])
 tabk766[8, 1] = z(tab766_m[282, 0], tab766_m[323, 0])
+tabk766[:, 1] = d766 - tabk766[:, 1]
 
 #Pi = 0.70 & Pr = 0.3
 plt.title('880')
@@ -713,6 +732,7 @@ tabk880[7, 0] = beta(tab880_m[219, 0], tab880_m[283, 0])
 tabk880[7, 1] = z(tab880_m[219, 0], tab880_m[283, 0])
 tabk880[8, 0] = beta(tab880_m[283, 0], tab880_m[324, 0])
 tabk880[8, 1] = z(tab880_m[283, 0], tab880_m[324, 0])
+tabk880[:, 1] = d880 - tabk880[:, 1]
 
 #Pi = 0.66 & Pr = 0.2 A FAIRE
 plt.title('1024')
@@ -746,5 +766,47 @@ tabk1024[7, 0] = beta(tab1024_m[222, 0], tab1024_m[282, 0])
 tabk1024[7, 1] = z(tab1024_m[222, 0], tab1024_m[282, 0])
 tabk1024[8, 0] = beta(tab1024_m[282, 0], tab1024_m[326, 0])
 tabk1024[8, 1] = z(tab1024_m[282, 0], tab1024_m[326, 0])
+tabk1024[:, 1] = d1024 - tabk1024[:, 1]
 
 #calcul des densités électroniques
+plt.title('densité électronique')
+plt.xlabel('position (cm)')
+plt.ylabel(r'densité électronique (cm$^{-3}$)')
+#plt.yscale('log')
+plt.scatter(tabk163[:, 1], densite(tabk163[:, 0]), color = 'c', marker = '.', label='163')
+plt.scatter(tabk261[:,1], densite(tabk261[:, 0]), color = 'b', marker = '.', label='261')
+plt.scatter(tabk363[:,1], densite(tabk363[:, 0]), color = 'r', marker = '.', label='363')
+plt.scatter(tabk455[:, 1], densite(tabk455[:, 0]), color = 'g', marker = '.', label='455')
+plt.scatter(tabk573[:,1], densite(tabk573[:, 0]), color = 'm', marker = '.', label='573')
+plt.scatter(tabk665[:,1], densite(tabk665[:, 0]), color = 'y', marker = '.', label='665')
+plt.scatter(tabk766[:,1], densite(tabk766[:, 0]), color = 'k', marker = '.', label='766')
+plt.scatter(tabk880[:,1], densite(tabk880[:, 0]), color = 'k', marker = 'd', label='880')
+plt.scatter(tabk1024[:,1], densite(tabk1024[:, 0]), color = 'k', marker = 'D', label='1024')
+plt.legend(loc='best')
+plt.show()
+
+# longueur du plasma en fct de la puissance incidente
+tabd = np.zeros((7, 2))
+tabd[0, :] = d1, id1
+tabd[1, :] = d2, id2
+tabd[2, :] = d3, id3
+tabd[3, :] = d4, id4
+tabd[4, :] = d5, id5
+tabd[5, :] = d6, id6
+tabd[6, :] = d7, id7
+
+tabPuissInc = np.zeros((7, 2))
+tabPuissInc[0, :] = .2e5, .01e5
+tabPuissInc[1, :] = .245e5, .01e5
+tabPuissInc[2, :] = .29e5, .01e5
+tabPuissInc[3, :] = .35e5, .01e5
+tabPuissInc[4, :] = .4e5, .01e5
+tabPuissInc[5, :] = .47e5, .01e5
+tabPuissInc[6, :] = .54e5, .01e5
+
+plt.title('longueur en fct de Puissance (inc)')
+plt.xlabel('Puissance incidente (mW)')
+plt.ylabel(r"longeur du plasma L (m)")
+plt.scatter(tabPuissInc[:, 0], tabd[:, 0])
+plt.errorbar(tabPuissInc[:, 0], tabd[:, 0], xerr = tabPuissInc[:, 1], yerr = tabd[:, 1])
+plt.show()

@@ -38,8 +38,8 @@ def densite(x):					#Le gros polynome pour 1/sqrt(n_e)	x = k
 #constantes pour fct densité
 omega = 2*np.pi*600e6			#2pi*f (600 MHz)
 me = 9.10938356e-31 			#masse au repos d'un électron (kg)
-epsilon0 = 8.8518782e-12		#permittivité du vide (m-3kg-1s4A2)
-e = 1.60217662e-19*1e6				#charge électronique (C)
+epsilon0 = 8.8518782e-12		#permittivité du vide (cm-3kg-1s4A2)
+e = 1.60217662e-19*1e6			#charge électronique (C)
 
 # lecture des données txt
 diagphase = np.loadtxt('diagramme_de_phase.txt')

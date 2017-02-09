@@ -20,12 +20,12 @@ def dist(d1, d2): 				#position fin colonne (en cm)
 def idist(d1, d2): 				#incertitude sur la position (en cm)
 	return np.abs((d1-d2)/2)
 
-def beta(l1, l2): 				#retourne k (beta) le vecteur d'onde (en m-1)
+def beta(l1, l2): 				#retourne k (beta) le vecteur d'onde (en cm-1)
 	l = np.abs(l1-l2)*2
 	return 2*np.pi/l
 
-def z(z1, z2): 					#position antenne (en m)
-	return (z1+z2)/200
+def z(z1, z2): 					#position antenne (en cm)
+	return (z1+z2)/2
 
 def densite(x):					#Le gros polynome pour 1/sqrt(n_e)	x = k
 	rapport = -1E-12*x**6 + 7E-10*x**5 - 2E-07*x**4 + 2E-05*x**3 - 0.0012*x**2 + 0.0421*x - 0.3292	
@@ -807,6 +807,5 @@ tabPuissInc[6, :] = .54e5, .01e5
 plt.title('longueur en fct de Puissance (inc)')
 plt.xlabel('Puissance incidente (mW)')
 plt.ylabel(r"longeur du plasma L (m)")
-plt.scatter(tabPuissInc[:, 0], tabd[:, 0])
-plt.errorbar(tabPuissInc[:, 0], tabd[:, 0], xerr = tabPuissInc[:, 1], yerr = tabd[:, 1])
+plt.errorbar(tabPuissInc[:, 0], tabd[:, 0], xerr = tabPuissInc[:, 1], yerr = tabd[:, 1], fmt = 'o')
 plt.show()

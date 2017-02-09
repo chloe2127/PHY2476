@@ -112,7 +112,7 @@ tab1024_g = np.loadtxt('1024_g.txt')
 
 #diagramme de phase fourni
 plt.title("diagramme de phase de l'argon")
-plt.xlabel(r'$\beta(m^{-1})$')
+plt.xlabel(r'$\beta(cm^{-1})$')
 plt.ylabel(r'$\omega/\omega_p$')
 plt.scatter(diagphase[:, 1], diagphase[:, 0])
 plt.show()
@@ -806,6 +806,6 @@ tabPuissInc[6, :] = .54e5, .01e5
 
 plt.title('longueur en fct de Puissance (inc)')
 plt.xlabel('Puissance incidente (mW)')
-plt.ylabel(r"longeur du plasma L (m)")
+plt.ylabel(r"longeur du plasma L (cm)")
 plt.errorbar(tabPuissInc[:, 0], tabd[:, 0], xerr = tabPuissInc[:, 1], yerr = tabd[:, 1], fmt = 'o')
 plt.show()

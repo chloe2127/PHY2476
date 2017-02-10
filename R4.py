@@ -14,23 +14,52 @@ import matplotlib.pyplot as plt
 ###########################################################
 # Définition de fonctions locales
 
-def dist(d1, d2): 				#position fin colonne (en cm)
-	return 111.3 - (d1+d2)/2
+def dist(d1, d2): 				#position fin colonne (en m)
+	return 1.113 - (d1+d2)/200
 
-def idist(d1, d2): 				#incertitude sur la position (en cm)
-	return np.abs((d1-d2)/2)
+def idist(d1, d2): 				#incertitude sur la position (en m)
+	return np.abs((d1-d2)/200)
 
-def beta(l1, l2): 				#retourne k (beta) le vecteur d'onde (en cm-1)
-	l = np.abs(l1-l2)*2
+def beta(l1, l2): 				#retourne k (beta) le vecteur d'onde (en m-1)
+	l = np.abs(l1-l2)*2/100
 	return 2*np.pi/l
 
 def z(z1, z2): 					#position antenne (en cm)
-	return (z1+z2)/2
+	return (z1+z2)/200
 
-def densite(x):					#Le gros polynome pour 1/sqrt(n_e)	x = k
-	rapport = -1E-12*x**6 + 7E-10*x**5 - 2E-07*x**4 + 2E-05*x**3 - 0.0012*x**2 + 0.0421*x - 0.3292	
-	densite = (omega**2)*me*epsilon0/((rapport**2)*(e**2))
-	return densite				#densité (cm-3)
+def densite(tabK):
+	# K : le tableau des k pour une certaine puissance
+	# tabPhase : la colonne des k dans le tableau du digramma de phase
+
+	densite = np.zeros(len(tabK[:,0])) # ce tableau va contenir toutes les densites calculees
+
+	for i in range(0,len(tabK[:,0])):
+		idx = (np.abs(diagphase[:, 1] - tabK[i,0])).argmin()
+		rapport = diagphase[idx, 1]
+		densite[i] = (omega**2)*me*epsilon0/((rapport**2)*(e**2))
+
+	return densite
+
+def regression(x, y, exp): # Régression linéaire avec les formules 6.11,  6.23 du livre de Bevington
+	
+	# a,b = les paramètres du fit y=a+b*x; da, db, les incertitudes dans a et b
+	N = x.size
+	delta = N*np.sum(x**2) - (np.sum(x))**2
+	a = (np.sum(x**2)*np.sum(y) - np.sum(x)*np.sum(x*y))/delta
+	b = (N*np.sum(x*y) - np.sum(x)*np.sum(y))/delta
+	s2 = np.sum((y-a-b*x)**2)/(N-2)
+	da = np.sqrt(s2/delta*np.sum(x**2))
+	db = np.sqrt(N*s2/delta)
+	err = np.sqrt(s2)
+	yf = a + b*x
+	print(u'décalage=%.2f pente=%.2f \nsigma(décal.)=%.2f sigma(pente)=%.2f sigma=%.3f' % (a,b,da,db,err))
+	
+	plt.title(r'%s' %exp)
+	plt.xlabel('z (m)')
+	plt.ylabel(r'densité électronique ($m^{-3}$)')
+	plt.plot(x, yf, color = 'k', label = 'fit de %.3f'%err)
+
+	return err, b, a
 
 ###########################################################
 # Définition des constantes
@@ -38,7 +67,7 @@ def densite(x):					#Le gros polynome pour 1/sqrt(n_e)	x = k
 #constantes pour fct densité
 omega = 2*np.pi*600e6			#2pi*f (600 MHz)
 me = 9.10938356e-31 			#masse au repos d'un électron (kg)
-epsilon0 = 8.8518782e-12		#permittivité du vide (cm-3kg-1s4A2)
+epsilon0 = 8.8518782e-12		#permittivité du vide (m-3kg-1s4A2)
 e = 1.60217662e-19*1e6			#charge électronique (C)
 
 # lecture des données txt
@@ -210,7 +239,6 @@ tabk2[6,:] = k2g, z2g
 tabk2[7,:] = k2h, z2h
 tabk2[8,:] = k2j, z2j
 tabk2[:, 1] = d2 - tabk2[:, 1]
-print(tabk2)
 
 #Pi = 0.290 & Pr = 0.025
 plt.title('3')
@@ -444,16 +472,22 @@ tabk7[:, 1] = d7 - tabk7[:, 1]
 #calcul des densités électroniques
 
 plt.title('densité électronique')
-plt.xlabel('position (cm)')
-plt.ylabel(r'densité électronique (cm$^{-3}$)')
-#plt.yscale('log')
-plt.scatter(tabk1[:, 1], densite(tabk1[:, 0]), color = 'c', marker = '.', label='1')
-plt.scatter(tabk2[:,1], densite(tabk2[:, 0]), color = 'b', marker = '.', label='2')
-plt.scatter(tabk3[:,1], densite(tabk3[:, 0]), color = 'r', marker = '.', label='3')
-plt.scatter(tabk4[:, 1], densite(tabk4[:, 0]), color = 'g', marker = '.', label='4')
-plt.scatter(tabk5[:,1], densite(tabk5[:, 0]), color = 'm', marker = '.', label='5')
-plt.scatter(tabk6[:,1], densite(tabk6[:, 0]), color = 'y', marker = '.', label='6')
-plt.scatter(tabk7[:,1], densite(tabk7[:, 0]), color = 'k', marker = '.', label='7')
+plt.xlabel('position (m)')
+plt.ylabel(r'densité électronique (m$^{-3}$)')
+e1, b1, a1 = regression(tabk1[:, 1], densite(tabk1), '1')
+plt.scatter(tabk1[:,1], densite(tabk1), color = 'c', marker = '.', label='1')
+e2, b2, a2 = regression(tabk2[:, 1], densite(tabk2), '2')
+plt.scatter(tabk2[:,1], densite(tabk2), color = 'b', marker = '.', label='2')
+e3, b3, a3 = regression(tabk3[:, 1], densite(tabk3), '3')
+plt.scatter(tabk3[:,1], densite(tabk3), color = 'r', marker = '.', label='3')
+e4, b4, a4 = regression(tabk4[:, 1], densite(tabk4), '4')
+plt.scatter(tabk4[:,1], densite(tabk4), color = 'g', marker = '.', label='4')
+e5, b5, a5 = regression(tabk5[:, 1], densite(tabk5), '5')
+plt.scatter(tabk5[:,1], densite(tabk5), color = 'm', marker = '.', label='5')
+e6, b6, a6 = regression(tabk6[:, 1], densite(tabk6), '1')
+plt.scatter(tabk6[:,1], densite(tabk6), color = 'y', marker = '.', label='6')
+e7, b7, a7 = regression(tabk7[:, 1], densite(tabk7), '7')
+plt.scatter(tabk7[:,1], densite(tabk7), color = 'k', marker = '.', label='7')
 plt.legend(loc='best')
 plt.show()
 
@@ -770,42 +804,114 @@ tabk1024[:, 1] = d1024 - tabk1024[:, 1]
 
 #calcul des densités électroniques
 plt.title('densité électronique')
-plt.xlabel('position (cm)')
-plt.ylabel(r'densité électronique (cm$^{-3}$)')
-#plt.yscale('log')
-plt.scatter(tabk163[:, 1], densite(tabk163[:, 0]), color = 'c', marker = '.', label='163')
-plt.scatter(tabk261[:,1], densite(tabk261[:, 0]), color = 'b', marker = '.', label='261')
-plt.scatter(tabk363[:,1], densite(tabk363[:, 0]), color = 'r', marker = '.', label='363')
-plt.scatter(tabk455[:, 1], densite(tabk455[:, 0]), color = 'g', marker = '.', label='455')
-plt.scatter(tabk573[:,1], densite(tabk573[:, 0]), color = 'm', marker = '.', label='573')
-plt.scatter(tabk665[:,1], densite(tabk665[:, 0]), color = 'y', marker = '.', label='665')
-plt.scatter(tabk766[:,1], densite(tabk766[:, 0]), color = 'k', marker = '.', label='766')
-plt.scatter(tabk880[:,1], densite(tabk880[:, 0]), color = 'k', marker = 'd', label='880')
-plt.scatter(tabk1024[:,1], densite(tabk1024[:, 0]), color = 'k', marker = 'D', label='1024')
+plt.xlabel('position (m)')
+plt.ylabel(r'densité électronique (m$^{-3}$)')
+e163, b163, a163 = regression(tabk163[:, 1], densite(tabk163), '163')
+plt.scatter(tabk163[:, 1], densite(tabk163), color = 'c', marker = '.', label='163')
+e261, b261, a261 = regression(tabk261[:, 1], densite(tabk261), '261')
+plt.scatter(tabk261[:,1], densite(tabk261), color = 'b', marker = '.', label='261')
+e363, b363, a363 = regression(tabk363[:, 1], densite(tabk363), '363')
+plt.scatter(tabk363[:,1], densite(tabk363), color = 'r', marker = '.', label='363')
+e455, b455, a455 = regression(tabk455[:, 1], densite(tabk455), '455')
+plt.scatter(tabk455[:, 1], densite(tabk455), color = 'g', marker = '.', label='455')
+e573, b573, a573 = regression(tabk573[:, 1], densite(tabk573), '573')
+plt.scatter(tabk573[:,1], densite(tabk573), color = 'm', marker = '.', label='573')
+e665, b665, a665 = regression(tabk665[:, 1], densite(tabk665), '665')
+plt.scatter(tabk665[:,1], densite(tabk665), color = 'y', marker = '.', label='665')
+e766, b766, a766 = regression(tabk766[:, 1], densite(tabk766), '766')
+plt.scatter(tabk766[:,1], densite(tabk766), color = 'k', marker = '.', label='766')
+e880, b880, a880 = regression(tabk880[:, 1], densite(tabk880), '880')
+plt.scatter(tabk880[:,1], densite(tabk880), color = 'k', marker = 'd', label='880')
+e1024, b1024, a1024 = regression(tabk1024[:, 1], densite(tabk1024), '1024')
+plt.scatter(tabk1024[:,1], densite(tabk1024), color = 'k', marker = 'D', label='1024')
 plt.legend(loc='best')
 plt.show()
 
+###################################################################################################
 # longueur du plasma en fct de la puissance incidente
-tabd = np.zeros((7, 2))
-tabd[0, :] = d1, id1
-tabd[1, :] = d2, id2
-tabd[2, :] = d3, id3
-tabd[3, :] = d4, id4
-tabd[4, :] = d5, id5
-tabd[5, :] = d6, id6
-tabd[6, :] = d7, id7
+tabd = np.zeros((16, 2))
+tabd[0,:] = d1, id1
+tabd[1,:] = d2, id2
+tabd[2,:] = d3, id3
+tabd[3,:] = d4, id4
+tabd[4,:] = d5, id5
+tabd[5,:] = d6, id6
+tabd[6,:] = d7, id7
+tabd[7,:] = d163, id163
+tabd[8,:] = d261, id261
+tabd[9,:] = d363, id363
+tabd[10,:] = d455, id455
+tabd[11,:] = d573, id573
+tabd[12,:] = d665, id665
+tabd[13,:] = d766, id766
+tabd[14,:] = d880, id880
+tabd[15,:] = d1024, id1024
 
-tabPuissInc = np.zeros((7, 2))
-tabPuissInc[0, :] = .2e5, .01e5
-tabPuissInc[1, :] = .245e5, .01e5
-tabPuissInc[2, :] = .29e5, .01e5
-tabPuissInc[3, :] = .35e5, .01e5
-tabPuissInc[4, :] = .4e5, .01e5
-tabPuissInc[5, :] = .47e5, .01e5
-tabPuissInc[6, :] = .54e5, .01e5
+tabPuissInc = np.zeros((16, 2))
+tabPuissInc[0,:] = .2e5, .01e5
+tabPuissInc[1,:] = .245e5, .01e5
+tabPuissInc[2,:] = .29e5, .01e5
+tabPuissInc[3,:] = .35e5, .01e5
+tabPuissInc[4,:] = .4e5, .01e5
+tabPuissInc[5,:] = .47e5, .01e5
+tabPuissInc[6,:] = .54e5, .01e5
+tabPuissInc[7,:] = .56e5, .01e5
+tabPuissInc[8,:] = .73e5, .01e5
+tabPuissInc[9,:] = .72e5, .01e5
+tabPuissInc[10,:] = .69e5, .01e5
+tabPuissInc[11,:] = .7e5, .01e5
+tabPuissInc[12,:] = .72e5, .01e5
+tabPuissInc[13,:] = .62e5, .05e5
+tabPuissInc[14,:] = .7e5, .01e5
+tabPuissInc[15,:] = .66e5, .02e5
 
 plt.title('longueur en fct de Puissance (inc)')
 plt.xlabel('Puissance incidente (mW)')
-plt.ylabel(r"longeur du plasma L (cm)")
-plt.errorbar(tabPuissInc[:, 0], tabd[:, 0], xerr = tabPuissInc[:, 1], yerr = tabd[:, 1], fmt = 'o')
+plt.ylabel(r"longeur du plasma L (m)")
+plt.errorbar(tabPuissInc[:6, 0], tabd[:6, 0], xerr = tabPuissInc[:6, 1], yerr = tabd[:6, 1], fmt = 'o')
+plt.errorbar(tabPuissInc[7:, 0], tabd[7:, 0], xerr = tabPuissInc[7:, 1], yerr = tabd[7:, 1], fmt = 'o')
 plt.show()
+
+####################################################################################################
+# theta
+
+tabPuissRef = np.zeros((16, 2))
+tabPuissRef[0,:] = .02e5, .01e5
+tabPuissRef[1,:] = .02e5, .01e5
+tabPuissRef[2,:] = .025e5, .01e5
+tabPuissRef[3,:] = .021e5, .01e5
+tabPuissRef[4,:] = .026e5, .01e5
+tabPuissRef[5,:] = .025e5, .01e5
+tabPuissRef[6,:] = .028e5, .01e5
+tabPuissRef[7,:] = .04e5, .01e5
+tabPuissRef[8,:] = .02e5, .01e5
+tabPuissRef[9,:] = .01e5, .01e5
+tabPuissRef[10,:] = .01e5, .01e5
+tabPuissRef[11,:] = .01e5, .01e5
+tabPuissRef[12,:] = .04e5, .01e5
+tabPuissRef[13,:] = .01e5, .01e5
+tabPuissRef[14,:] = .03e5, .01e5
+tabPuissRef[15,:] = .01e5, .01e5
+
+
+# theta = Puissance absolue/(aL**2/2 - bL) (qui est le résultat de l'intégrale pour Ne)
+#deuxieme colonne pour les incert
+tabTheta = np.zeros((16, 2))
+tabTheta[0,:] = (tabPuissInc[0,0]-tabPuissRef[0,0])/(.5*a1*tabd[0,0]**2 + b1*tabd[0,0])
+tabTheta[1,:] = (tabPuissInc[1,0]-tabPuissRef[1,0])/(.5*a2*tabd[1,0]**2 + b2*tabd[1,0])
+tabTheta[2,:] = (tabPuissInc[2,0]-tabPuissRef[2,0])/(.5*a3*tabd[2,0]**2 + b3*tabd[2,0])
+tabTheta[3,:] = (tabPuissInc[3,0]-tabPuissRef[3,0])/(.5*a4*tabd[3,0]**2 + b4*tabd[3,0])
+tabTheta[4,:] = (tabPuissInc[4,0]-tabPuissRef[4,0])/(.5*a5*tabd[4,0]**2 + b5*tabd[4,0])
+tabTheta[5,:] = (tabPuissInc[5,0]-tabPuissRef[5,0])/(.5*a6*tabd[5,0]**2 + b6*tabd[5,0])
+tabTheta[6,:] = (tabPuissInc[6,0]-tabPuissRef[6,0])/(.5*a7*tabd[6,0]**2 + b7*tabd[6,0])
+tabTheta[7,:] = (tabPuissInc[7,0]-tabPuissRef[7,0])/(.5*a163*tabd[7,0]**2 + b163*tabd[7,0])
+tabTheta[8,:] = (tabPuissInc[8,0]-tabPuissRef[8,0])/(.5*a261*tabd[8,0]**2 + b261*tabd[8,0])
+tabTheta[9,:] = (tabPuissInc[9,0]-tabPuissRef[9,0])/(.5*a363*tabd[9,0]**2 + b363*tabd[9,0])
+tabTheta[10,:] = (tabPuissInc[10,0]-tabPuissRef[10,0])/(.5*a455*tabd[10,0]**2 + b455*tabd[10,0])
+tabTheta[11,:] = (tabPuissInc[11,0]-tabPuissRef[11,0])/(.5*a573*tabd[11,0]**2 + b573*tabd[11,0])
+tabTheta[12,:] = (tabPuissInc[12,0]-tabPuissRef[12,0])/(.5*a665*tabd[12,0]**2 + b665*tabd[12,0])
+tabTheta[13,:] = (tabPuissInc[13,0]-tabPuissRef[13,0])/(.5*a766*tabd[13,0]**2 + b766*tabd[13,0])
+tabTheta[14,:] = (tabPuissInc[14,0]-tabPuissRef[14,0])/(.5*a880*tabd[14,0]**2 + b880*tabd[14,0])
+tabTheta[15,:] = (tabPuissInc[15,0]-tabPuissRef[15,0])/(.5*a1024*tabd[15,0]**2 + b1024*tabd[15,0])
+print(tabTheta)
+

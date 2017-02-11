@@ -31,16 +31,17 @@ def densite(tabK):
 	# K : le tableau des k pour une certaine puissance
 	# tabPhase : la colonne des k dans le tableau du digramma de phase
 
-	densite = np.zeros(len(tabK[:,0])) # ce tableau va contenir toutes les densites calculees
+	densite = np.zeros((len(tabK[:,0]), 2)) # ce tableau va contenir toutes les densites calculees et l'incertitude associée
 
 	for i in range(0,len(tabK[:,0])):
 		idx = (np.abs(diagphase[:, 1] - tabK[i,0])).argmin()
 		rapport = diagphase[idx, 1]
-		densite[i] = (omega**2)*me*epsilon0/((rapport**2)*(e**2))
+		densite[i, 0] = (omega**2)*me*epsilon0/((rapport**2)*(e**2))
+		densite[i, 1] = np.abs((diagphase[idx+1, 1]-diagphase[idx, 1])/2) 	#incert (écart-type)
 
 	return densite
 
-def regression(x, y, exp): # Régression linéaire avec les formules 6.11,  6.23 du livre de Bevington
+def regression(x, y, exp, color): # Régression linéaire avec les formules 6.11,  6.23 du livre de Bevington
 	
 	# a,b = les paramètres du fit y=a+b*x; da, db, les incertitudes dans a et b
 	N = x.size
@@ -57,9 +58,14 @@ def regression(x, y, exp): # Régression linéaire avec les formules 6.11,  6.23
 	plt.title(r'%s' %exp)
 	plt.xlabel('z (m)')
 	plt.ylabel(r'densité électronique ($m^{-3}$)')
-	plt.plot(x, yf, color = 'k', label = 'fit de %.3f'%err)
+	plt.plot(x, yf, color = r'%s' %color)
+	#label = 'fit de %.3f' %err
+	return err, b, a, da, db
 
-	return err, b, a
+def incert_theta(iPi, iPr, iz, ia, ib):
+	return np.sqrt(iPi**2 + iPr**2 + iz**2 + ia**2 + ib**2)
+
+
 
 ###########################################################
 # Définition des constantes
@@ -140,7 +146,7 @@ tab1024_g = np.loadtxt('1024_g.txt')
 # Programme principal
 
 #diagramme de phase fourni
-plt.title("diagramme de phase de l'argon")
+#plt.title("diagramme de phase de l'argon")
 plt.xlabel(r'$\beta(cm^{-1})$')
 plt.ylabel(r'$\omega/\omega_p$')
 plt.scatter(diagphase[:, 1], diagphase[:, 0])
@@ -151,7 +157,7 @@ plt.show()
 #A PRESSION CONSTANTE (50 mTorrs)
 
 #Pi = 0.21 & Pr = 0.02
-plt.title('1')
+#plt.title('1')
 plt.xlabel('position (cm)')
 plt.ylabel('amplitude (u.A.)')
 plt.scatter(tab1p[:, 0], tab1p[:, 1], color = 'c', marker = '.', label='p')
@@ -471,23 +477,23 @@ tabk7[:, 1] = d7 - tabk7[:, 1]
 
 #calcul des densités électroniques
 
-plt.title('densité électronique')
+#plt.title('densité électronique')
 plt.xlabel('position (m)')
 plt.ylabel(r'densité électronique (m$^{-3}$)')
-e1, b1, a1 = regression(tabk1[:, 1], densite(tabk1), '1')
-plt.scatter(tabk1[:,1], densite(tabk1), color = 'c', marker = '.', label='1')
-e2, b2, a2 = regression(tabk2[:, 1], densite(tabk2), '2')
-plt.scatter(tabk2[:,1], densite(tabk2), color = 'b', marker = '.', label='2')
-e3, b3, a3 = regression(tabk3[:, 1], densite(tabk3), '3')
-plt.scatter(tabk3[:,1], densite(tabk3), color = 'r', marker = '.', label='3')
-e4, b4, a4 = regression(tabk4[:, 1], densite(tabk4), '4')
-plt.scatter(tabk4[:,1], densite(tabk4), color = 'g', marker = '.', label='4')
-e5, b5, a5 = regression(tabk5[:, 1], densite(tabk5), '5')
-plt.scatter(tabk5[:,1], densite(tabk5), color = 'm', marker = '.', label='5')
-e6, b6, a6 = regression(tabk6[:, 1], densite(tabk6), '1')
-plt.scatter(tabk6[:,1], densite(tabk6), color = 'y', marker = '.', label='6')
-e7, b7, a7 = regression(tabk7[:, 1], densite(tabk7), '7')
-plt.scatter(tabk7[:,1], densite(tabk7), color = 'k', marker = '.', label='7')
+e1, b1, a1, siga1, sigb1 = regression(tabk1[:, 1], densite(tabk1)[:,0], '1', 'c')
+plt.errorbar(tabk1[:,1], densite(tabk1)[:,0], xerr = id1, yerr = densite(tabk1)[:,1], fmt = '.', color = 'c', label='1')
+e2, b2, a2, siga2, sigb2 = regression(tabk2[:, 1], densite(tabk2)[:,0], '2', 'b')
+plt.errorbar(tabk2[:,1], densite(tabk2)[:,0], xerr = id2, yerr = densite(tabk2)[:,1], color = 'b', fmt = '.', label='2')
+e3, b3, a3, siga3, sigb3 = regression(tabk3[:, 1], densite(tabk3)[:,0], '3', 'r')
+plt.errorbar(tabk3[:,1], densite(tabk3)[:,0], xerr = id3, yerr = densite(tabk3)[:,1], color = 'r', fmt = '.', label='3')
+e4, b4, a4, siga4, sigb4 = regression(tabk4[:, 1], densite(tabk4)[:,0], '4', 'g')
+plt.errorbar(tabk4[:,1], densite(tabk4)[:,0], xerr = id4, yerr = densite(tabk4)[:,1], color = 'g', fmt = '.', label='4')
+e5, b5, a5, siga5, sigb5 = regression(tabk5[:, 1], densite(tabk5)[:,0], '5', 'm')
+plt.errorbar(tabk5[:,1], densite(tabk5)[:,0], xerr = id5, yerr = densite(tabk5)[:,1], color = 'm', fmt = '.', label='5')
+e6, b6, a6, siga6, sigb6 = regression(tabk6[:, 1], densite(tabk6)[:,0], '1', 'y')
+plt.errorbar(tabk6[:,1], densite(tabk6)[:,0], xerr = id6, yerr = densite(tabk6)[:,1], color = 'y', fmt = '.', label='6')
+e7, b7, a7, siga7, sigb7 = regression(tabk7[:, 1], densite(tabk7)[:,0], '7', 'k')
+plt.errorbar(tabk7[:,1], densite(tabk7)[:,0], xerr = id7, yerr = densite(tabk7)[:,1], color = 'k', fmt = '.', label='7')
 plt.legend(loc='best')
 plt.show()
 
@@ -803,27 +809,27 @@ tabk1024[8, 1] = z(tab1024_m[282, 0], tab1024_m[326, 0])
 tabk1024[:, 1] = d1024 - tabk1024[:, 1]
 
 #calcul des densités électroniques
-plt.title('densité électronique')
+#plt.title('densité électronique')
 plt.xlabel('position (m)')
 plt.ylabel(r'densité électronique (m$^{-3}$)')
-e163, b163, a163 = regression(tabk163[:, 1], densite(tabk163), '163')
-plt.scatter(tabk163[:, 1], densite(tabk163), color = 'c', marker = '.', label='163')
-e261, b261, a261 = regression(tabk261[:, 1], densite(tabk261), '261')
-plt.scatter(tabk261[:,1], densite(tabk261), color = 'b', marker = '.', label='261')
-e363, b363, a363 = regression(tabk363[:, 1], densite(tabk363), '363')
-plt.scatter(tabk363[:,1], densite(tabk363), color = 'r', marker = '.', label='363')
-e455, b455, a455 = regression(tabk455[:, 1], densite(tabk455), '455')
-plt.scatter(tabk455[:, 1], densite(tabk455), color = 'g', marker = '.', label='455')
-e573, b573, a573 = regression(tabk573[:, 1], densite(tabk573), '573')
-plt.scatter(tabk573[:,1], densite(tabk573), color = 'm', marker = '.', label='573')
-e665, b665, a665 = regression(tabk665[:, 1], densite(tabk665), '665')
-plt.scatter(tabk665[:,1], densite(tabk665), color = 'y', marker = '.', label='665')
-e766, b766, a766 = regression(tabk766[:, 1], densite(tabk766), '766')
-plt.scatter(tabk766[:,1], densite(tabk766), color = 'k', marker = '.', label='766')
-e880, b880, a880 = regression(tabk880[:, 1], densite(tabk880), '880')
-plt.scatter(tabk880[:,1], densite(tabk880), color = 'k', marker = 'd', label='880')
-e1024, b1024, a1024 = regression(tabk1024[:, 1], densite(tabk1024), '1024')
-plt.scatter(tabk1024[:,1], densite(tabk1024), color = 'k', marker = 'D', label='1024')
+e163, b163, a163, siga163, sigb163 = regression(tabk163[:, 1], densite(tabk163)[:,0], '163', 'c')
+plt.errorbar(tabk163[:, 1], densite(tabk163)[:,0], xerr = id163, yerr = densite(tabk163)[:,1], color = 'c', fmt = '.', label='163')
+e261, b261, a261, siga261, sigb261 = regression(tabk261[:, 1], densite(tabk261)[:,0], '261', 'b')
+plt.errorbar(tabk261[:,1], densite(tabk261)[:,0], xerr = id261, yerr = densite(tabk261)[:,1], color = 'b', fmt = '.', label='261')
+e363, b363, a363, siga363, sigb363 = regression(tabk363[:, 1], densite(tabk363)[:,0], '363', 'r')
+plt.errorbar(tabk363[:,1], densite(tabk363)[:,0], xerr = id363, yerr = densite(tabk363)[:,1], color = 'r', fmt = '.', label='363')
+e455, b455, a455, siga455, sigb455 = regression(tabk455[:, 1], densite(tabk455)[:,0], '455', 'g')
+plt.errorbar(tabk455[:, 1], densite(tabk455)[:,0], xerr = id455, yerr = densite(tabk455)[:,1], color = 'g', fmt = '.', label='455')
+e573, b573, a573, siga573, sigb573 = regression(tabk573[:, 1], densite(tabk573)[:,0], '573', 'm')
+plt.errorbar(tabk573[:,1], densite(tabk573)[:,0], xerr = id573, yerr = densite(tabk573)[:,1], color = 'm', fmt = '.', label='573')
+e665, b665, a665, siga665, sigb665 = regression(tabk665[:, 1], densite(tabk665)[:,0], '665', 'y')
+plt.errorbar(tabk665[:,1], densite(tabk665)[:,0], xerr = id665, yerr = densite(tabk665)[:,1], color = 'y', fmt = '.', label='665')
+e766, b766, a766, siga766, sigb766 = regression(tabk766[:, 1], densite(tabk766)[:,0], '766', 'k')
+plt.errorbar(tabk766[:,1], densite(tabk766)[:,0], xerr = id766, yerr = densite(tabk766)[:,1], color = 'k', fmt = '.', label='766')
+e880, b880, a880, siga880, sigb880 = regression(tabk880[:, 1], densite(tabk880)[:,0], '880', 'k')
+plt.errorbar(tabk880[:,1], densite(tabk880)[:,0], xerr = id880, yerr = densite(tabk880)[:,1], color = 'k', fmt = 'd', label='880')
+e1024, b1024, a1024, siga1024, sigb1024 = regression(tabk1024[:, 1], densite(tabk1024)[:,0], '1024', 'k')
+plt.errorbar(tabk1024[:,1], densite(tabk1024)[:,0], xerr = id1024, yerr = densite(tabk1024)[:,1], color = 'k', fmt = 'D', label='1024')
 plt.legend(loc='best')
 plt.show()
 
@@ -865,11 +871,11 @@ tabPuissInc[13,:] = .62e5, .05e5
 tabPuissInc[14,:] = .7e5, .01e5
 tabPuissInc[15,:] = .66e5, .02e5
 
-plt.title('longueur en fct de Puissance (inc)')
+#plt.title('longueur en fct de Puissance (inc)')
 plt.xlabel('Puissance incidente (mW)')
 plt.ylabel(r"longeur du plasma L (m)")
-plt.errorbar(tabPuissInc[:6, 0], tabd[:6, 0], xerr = tabPuissInc[:6, 1], yerr = tabd[:6, 1], fmt = 'o')
-plt.errorbar(tabPuissInc[7:, 0], tabd[7:, 0], xerr = tabPuissInc[7:, 1], yerr = tabd[7:, 1], fmt = 'o')
+plt.errorbar(tabPuissInc[:6, 0], tabd[:6, 0], xerr = tabPuissInc[:6, 1], yerr = tabd[:6, 1], fmt = '.')
+plt.errorbar(tabPuissInc[7:, 0], tabd[7:, 0], xerr = tabPuissInc[7:, 1], yerr = tabd[7:, 1], fmt = '.')
 plt.show()
 
 ####################################################################################################
@@ -895,23 +901,22 @@ tabPuissRef[15,:] = .01e5, .01e5
 
 
 # theta = Puissance absolue/(aL**2/2 - bL) (qui est le résultat de l'intégrale pour Ne)
-#deuxieme colonne pour les incert
 tabTheta = np.zeros((16, 2))
-tabTheta[0,:] = (tabPuissInc[0,0]-tabPuissRef[0,0])/(.5*a1*tabd[0,0]**2 + b1*tabd[0,0])
-tabTheta[1,:] = (tabPuissInc[1,0]-tabPuissRef[1,0])/(.5*a2*tabd[1,0]**2 + b2*tabd[1,0])
-tabTheta[2,:] = (tabPuissInc[2,0]-tabPuissRef[2,0])/(.5*a3*tabd[2,0]**2 + b3*tabd[2,0])
-tabTheta[3,:] = (tabPuissInc[3,0]-tabPuissRef[3,0])/(.5*a4*tabd[3,0]**2 + b4*tabd[3,0])
-tabTheta[4,:] = (tabPuissInc[4,0]-tabPuissRef[4,0])/(.5*a5*tabd[4,0]**2 + b5*tabd[4,0])
-tabTheta[5,:] = (tabPuissInc[5,0]-tabPuissRef[5,0])/(.5*a6*tabd[5,0]**2 + b6*tabd[5,0])
-tabTheta[6,:] = (tabPuissInc[6,0]-tabPuissRef[6,0])/(.5*a7*tabd[6,0]**2 + b7*tabd[6,0])
-tabTheta[7,:] = (tabPuissInc[7,0]-tabPuissRef[7,0])/(.5*a163*tabd[7,0]**2 + b163*tabd[7,0])
-tabTheta[8,:] = (tabPuissInc[8,0]-tabPuissRef[8,0])/(.5*a261*tabd[8,0]**2 + b261*tabd[8,0])
-tabTheta[9,:] = (tabPuissInc[9,0]-tabPuissRef[9,0])/(.5*a363*tabd[9,0]**2 + b363*tabd[9,0])
-tabTheta[10,:] = (tabPuissInc[10,0]-tabPuissRef[10,0])/(.5*a455*tabd[10,0]**2 + b455*tabd[10,0])
-tabTheta[11,:] = (tabPuissInc[11,0]-tabPuissRef[11,0])/(.5*a573*tabd[11,0]**2 + b573*tabd[11,0])
-tabTheta[12,:] = (tabPuissInc[12,0]-tabPuissRef[12,0])/(.5*a665*tabd[12,0]**2 + b665*tabd[12,0])
-tabTheta[13,:] = (tabPuissInc[13,0]-tabPuissRef[13,0])/(.5*a766*tabd[13,0]**2 + b766*tabd[13,0])
-tabTheta[14,:] = (tabPuissInc[14,0]-tabPuissRef[14,0])/(.5*a880*tabd[14,0]**2 + b880*tabd[14,0])
-tabTheta[15,:] = (tabPuissInc[15,0]-tabPuissRef[15,0])/(.5*a1024*tabd[15,0]**2 + b1024*tabd[15,0])
+tabTheta[0,:] = (tabPuissInc[0,0]-tabPuissRef[0,0])/(.5*a1*tabd[0,0]**2 + b1*tabd[0,0]), incert_theta(tabPuissInc[0, 1], tabPuissRef[0, 1], tabd[0, 1], siga1, sigb1)
+tabTheta[1,:] = (tabPuissInc[1,0]-tabPuissRef[1,0])/(.5*a2*tabd[1,0]**2 + b2*tabd[1,0]), incert_theta(tabPuissInc[1, 1], tabPuissRef[1, 1], tabd[1, 1], siga2, sigb2)
+tabTheta[2,:] = (tabPuissInc[2,0]-tabPuissRef[2,0])/(.5*a3*tabd[2,0]**2 + b3*tabd[2,0]), incert_theta(tabPuissInc[2, 1], tabPuissRef[2, 1], tabd[2, 1], siga3, sigb3)
+tabTheta[3,:] = (tabPuissInc[3,0]-tabPuissRef[3,0])/(.5*a4*tabd[3,0]**2 + b4*tabd[3,0]), incert_theta(tabPuissInc[3, 1], tabPuissRef[3, 1], tabd[3, 1], siga4, sigb4)
+tabTheta[4,:] = (tabPuissInc[4,0]-tabPuissRef[4,0])/(.5*a5*tabd[4,0]**2 + b5*tabd[4,0]), incert_theta(tabPuissInc[4, 1], tabPuissRef[4, 1], tabd[4, 1], siga5, sigb5)
+tabTheta[5,:] = (tabPuissInc[5,0]-tabPuissRef[5,0])/(.5*a6*tabd[5,0]**2 + b6*tabd[5,0]), incert_theta(tabPuissInc[5, 1], tabPuissRef[5, 1], tabd[5, 1], siga6, sigb6)
+tabTheta[6,:] = (tabPuissInc[6,0]-tabPuissRef[6,0])/(.5*a7*tabd[6,0]**2 + b7*tabd[6,0]), incert_theta(tabPuissInc[6, 1], tabPuissRef[6, 1], tabd[6, 1], siga7, sigb7)
+tabTheta[7,:] = (tabPuissInc[7,0]-tabPuissRef[7,0])/(.5*a163*tabd[7,0]**2 + b163*tabd[7,0]), incert_theta(tabPuissInc[7, 1], tabPuissRef[7, 1], tabd[7, 1], siga163, sigb163)
+tabTheta[8,:] = (tabPuissInc[8,0]-tabPuissRef[8,0])/(.5*a261*tabd[8,0]**2 + b261*tabd[8,0]), incert_theta(tabPuissInc[8, 1], tabPuissRef[8, 1], tabd[8, 1], siga261, sigb261)
+tabTheta[9,:] = (tabPuissInc[9,0]-tabPuissRef[9,0])/(.5*a363*tabd[9,0]**2 + b363*tabd[9,0]), incert_theta(tabPuissInc[9, 1], tabPuissRef[9, 1], tabd[9, 1], siga363, sigb363)
+tabTheta[10,:] = (tabPuissInc[10,0]-tabPuissRef[10,0])/(.5*a455*tabd[10,0]**2 + b455*tabd[10,0]), incert_theta(tabPuissInc[10, 1], tabPuissRef[10, 1], tabd[10, 1], siga455, sigb455)
+tabTheta[11,:] = (tabPuissInc[11,0]-tabPuissRef[11,0])/(.5*a573*tabd[11,0]**2 + b573*tabd[11,0]), incert_theta(tabPuissInc[11, 1], tabPuissRef[11, 1], tabd[11, 1], siga573, sigb573)
+tabTheta[12,:] = (tabPuissInc[12,0]-tabPuissRef[12,0])/(.5*a665*tabd[12,0]**2 + b665*tabd[12,0]), incert_theta(tabPuissInc[12, 1], tabPuissRef[12, 1], tabd[12, 1], siga665, sigb665)
+tabTheta[13,:] = (tabPuissInc[13,0]-tabPuissRef[13,0])/(.5*a766*tabd[13,0]**2 + b766*tabd[13,0]), incert_theta(tabPuissInc[13, 1], tabPuissRef[13, 1], tabd[13, 1], siga766, sigb766)
+tabTheta[14,:] = (tabPuissInc[14,0]-tabPuissRef[14,0])/(.5*a880*tabd[14,0]**2 + b880*tabd[14,0]), incert_theta(tabPuissInc[14, 1], tabPuissRef[14, 1], tabd[14, 1], siga880, sigb880)
+tabTheta[15,:] = (tabPuissInc[15,0]-tabPuissRef[15,0])/(.5*a1024*tabd[15,0]**2 + b1024*tabd[15,0]), incert_theta(tabPuissInc[15, 1], tabPuissRef[15, 1], tabd[15, 1], siga1024, sigb1024)
 print(tabTheta)
 

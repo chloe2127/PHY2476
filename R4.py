@@ -150,6 +150,7 @@ tab1024_g = np.loadtxt('1024_g.txt')
 plt.xlabel(r'$\beta(cm^{-1})$')
 plt.ylabel(r'$\omega/\omega_p$')
 plt.scatter(diagphase[:, 1], diagphase[:, 0])
+plt.savefig('diagphase.png')
 plt.show()
 
 #1e5 sur les puissances (en mW)
@@ -164,6 +165,7 @@ plt.scatter(tab1p[:, 0], tab1p[:, 1], color = 'c', marker = '.', label='p')
 plt.scatter(tab1m[:, 0], tab1m[:, 1], color = 'm', marker = '.', label='m')
 plt.scatter(tab1g[:, 0], tab1g[:, 1], color = 'b', marker = '.', label='g')
 plt.legend(loc='best')
+plt.savefig('interfero.png')
 plt.show()
 
 d1 = dist(64.3, 65.2)
@@ -495,6 +497,7 @@ plt.errorbar(tabk6[:,1], densite(tabk6)[:,0], xerr = id6, yerr = densite(tabk6)[
 e7, b7, a7, siga7, sigb7 = regression(tabk7[:, 1], densite(tabk7)[:,0], '7', 'k')
 plt.errorbar(tabk7[:,1], densite(tabk7)[:,0], xerr = id7, yerr = densite(tabk7)[:,1], color = 'k', fmt = '.', label='7')
 plt.legend(loc='best')
+plt.savefig('puissance.png')
 plt.show()
 
 ######################################################################################
@@ -831,6 +834,7 @@ plt.errorbar(tabk880[:,1], densite(tabk880)[:,0], xerr = id880, yerr = densite(t
 e1024, b1024, a1024, siga1024, sigb1024 = regression(tabk1024[:, 1], densite(tabk1024)[:,0], '1024', 'k')
 plt.errorbar(tabk1024[:,1], densite(tabk1024)[:,0], xerr = id1024, yerr = densite(tabk1024)[:,1], color = 'k', fmt = 'D', label='1024')
 plt.legend(loc='best')
+plt.savefig('pression.png')
 plt.show()
 
 ###################################################################################################
@@ -853,70 +857,74 @@ tabd[13,:] = d766, id766
 tabd[14,:] = d880, id880
 tabd[15,:] = d1024, id1024
 
-tabPuissInc = np.zeros((16, 2))
-tabPuissInc[0,:] = .2e5, .01e5
-tabPuissInc[1,:] = .245e5, .01e5
-tabPuissInc[2,:] = .29e5, .01e5
-tabPuissInc[3,:] = .35e5, .01e5
-tabPuissInc[4,:] = .4e5, .01e5
-tabPuissInc[5,:] = .47e5, .01e5
-tabPuissInc[6,:] = .54e5, .01e5
-tabPuissInc[7,:] = .56e5, .01e5
-tabPuissInc[8,:] = .73e5, .01e5
-tabPuissInc[9,:] = .72e5, .01e5
-tabPuissInc[10,:] = .69e5, .01e5
-tabPuissInc[11,:] = .7e5, .01e5
-tabPuissInc[12,:] = .72e5, .01e5
-tabPuissInc[13,:] = .62e5, .05e5
-tabPuissInc[14,:] = .7e5, .01e5
-tabPuissInc[15,:] = .66e5, .02e5
+tabPuissInc = np.zeros((16, 2)) 	
+tabPuissInc[0,:] = .2, .01
+tabPuissInc[1,:] = .245, .01
+tabPuissInc[2,:] = .29, .01
+tabPuissInc[3,:] = .35, .01
+tabPuissInc[4,:] = .4, .01
+tabPuissInc[5,:] = .47, .01
+tabPuissInc[6,:] = .54, .01
+tabPuissInc[7,:] = .56, .01
+tabPuissInc[8,:] = .73, .01
+tabPuissInc[9,:] = .72, .01
+tabPuissInc[10,:] = .69, .01
+tabPuissInc[11,:] = .7, .01
+tabPuissInc[12,:] = .72, .01
+tabPuissInc[13,:] = .62, .05
+tabPuissInc[14,:] = .7, .01
+tabPuissInc[15,:] = .66, .02
+tabPuissInc[:,:] = 10*tabPuissInc[:,:] 	#parce qu'on lisait sur une échelle 10mW
 
 #plt.title('longueur en fct de Puissance (inc)')
 plt.xlabel('Puissance incidente (mW)')
 plt.ylabel(r"longeur du plasma L (m)")
-plt.errorbar(tabPuissInc[:6, 0], tabd[:6, 0], xerr = tabPuissInc[:6, 1], yerr = tabd[:6, 1], fmt = '.')
-plt.errorbar(tabPuissInc[7:, 0], tabd[7:, 0], xerr = tabPuissInc[7:, 1], yerr = tabd[7:, 1], fmt = '.')
+plt.errorbar(tabPuissInc[:6, 0], tabd[:6, 0], xerr = tabPuissInc[:6, 1], yerr = tabd[:6, 1], fmt = '.', label = 'Pression fixe')
+plt.errorbar(tabPuissInc[8:, 0], tabd[8:, 0], xerr = tabPuissInc[8:, 1], yerr = tabd[8:, 1], fmt = '.', label = 'Puissance fixe')
+plt.legend(loc = 'best')
+plt.savefig('longueur.png')
 plt.show()
 
 ####################################################################################################
 # theta
 
 tabPuissRef = np.zeros((16, 2))
-tabPuissRef[0,:] = .02e5, .01e5
-tabPuissRef[1,:] = .02e5, .01e5
-tabPuissRef[2,:] = .025e5, .01e5
-tabPuissRef[3,:] = .021e5, .01e5
-tabPuissRef[4,:] = .026e5, .01e5
-tabPuissRef[5,:] = .025e5, .01e5
-tabPuissRef[6,:] = .028e5, .01e5
-tabPuissRef[7,:] = .04e5, .01e5
-tabPuissRef[8,:] = .02e5, .01e5
-tabPuissRef[9,:] = .01e5, .01e5
-tabPuissRef[10,:] = .01e5, .01e5
-tabPuissRef[11,:] = .01e5, .01e5
-tabPuissRef[12,:] = .04e5, .01e5
-tabPuissRef[13,:] = .01e5, .01e5
-tabPuissRef[14,:] = .03e5, .01e5
-tabPuissRef[15,:] = .01e5, .01e5
+tabPuissRef[0,:] = .02, .01
+tabPuissRef[1,:] = .02, .01
+tabPuissRef[2,:] = .025, .01
+tabPuissRef[3,:] = .021, .01
+tabPuissRef[4,:] = .026, .01
+tabPuissRef[5,:] = .025, .01
+tabPuissRef[6,:] = .028, .01
+tabPuissRef[7,:] = .04, .01
+tabPuissRef[8,:] = .02, .01
+tabPuissRef[9,:] = .01, .01
+tabPuissRef[10,:] = .01, .01
+tabPuissRef[11,:] = .01, .01
+tabPuissRef[12,:] = .04, .01
+tabPuissRef[13,:] = .01, .01
+tabPuissRef[14,:] = .03, .01
+tabPuissRef[15,:] = .01, .01
+tabPuissRef[:,:] = 10*tabPuissRef[:,:]
 
 
-# theta = Puissance absolue/(aL**2/2 - bL) (qui est le résultat de l'intégrale pour Ne)
+# theta = Puissance absolue/2pir(aL**2/2 - bL) (qui est le résultat de l'intégrale pour Ne)
 tabTheta = np.zeros((16, 2))
-tabTheta[0,:] = (tabPuissInc[0,0]-tabPuissRef[0,0])/(.5*a1*tabd[0,0]**2 + b1*tabd[0,0]), incert_theta(tabPuissInc[0, 1], tabPuissRef[0, 1], tabd[0, 1], siga1, sigb1)
-tabTheta[1,:] = (tabPuissInc[1,0]-tabPuissRef[1,0])/(.5*a2*tabd[1,0]**2 + b2*tabd[1,0]), incert_theta(tabPuissInc[1, 1], tabPuissRef[1, 1], tabd[1, 1], siga2, sigb2)
-tabTheta[2,:] = (tabPuissInc[2,0]-tabPuissRef[2,0])/(.5*a3*tabd[2,0]**2 + b3*tabd[2,0]), incert_theta(tabPuissInc[2, 1], tabPuissRef[2, 1], tabd[2, 1], siga3, sigb3)
-tabTheta[3,:] = (tabPuissInc[3,0]-tabPuissRef[3,0])/(.5*a4*tabd[3,0]**2 + b4*tabd[3,0]), incert_theta(tabPuissInc[3, 1], tabPuissRef[3, 1], tabd[3, 1], siga4, sigb4)
-tabTheta[4,:] = (tabPuissInc[4,0]-tabPuissRef[4,0])/(.5*a5*tabd[4,0]**2 + b5*tabd[4,0]), incert_theta(tabPuissInc[4, 1], tabPuissRef[4, 1], tabd[4, 1], siga5, sigb5)
-tabTheta[5,:] = (tabPuissInc[5,0]-tabPuissRef[5,0])/(.5*a6*tabd[5,0]**2 + b6*tabd[5,0]), incert_theta(tabPuissInc[5, 1], tabPuissRef[5, 1], tabd[5, 1], siga6, sigb6)
-tabTheta[6,:] = (tabPuissInc[6,0]-tabPuissRef[6,0])/(.5*a7*tabd[6,0]**2 + b7*tabd[6,0]), incert_theta(tabPuissInc[6, 1], tabPuissRef[6, 1], tabd[6, 1], siga7, sigb7)
-tabTheta[7,:] = (tabPuissInc[7,0]-tabPuissRef[7,0])/(.5*a163*tabd[7,0]**2 + b163*tabd[7,0]), incert_theta(tabPuissInc[7, 1], tabPuissRef[7, 1], tabd[7, 1], siga163, sigb163)
-tabTheta[8,:] = (tabPuissInc[8,0]-tabPuissRef[8,0])/(.5*a261*tabd[8,0]**2 + b261*tabd[8,0]), incert_theta(tabPuissInc[8, 1], tabPuissRef[8, 1], tabd[8, 1], siga261, sigb261)
-tabTheta[9,:] = (tabPuissInc[9,0]-tabPuissRef[9,0])/(.5*a363*tabd[9,0]**2 + b363*tabd[9,0]), incert_theta(tabPuissInc[9, 1], tabPuissRef[9, 1], tabd[9, 1], siga363, sigb363)
-tabTheta[10,:] = (tabPuissInc[10,0]-tabPuissRef[10,0])/(.5*a455*tabd[10,0]**2 + b455*tabd[10,0]), incert_theta(tabPuissInc[10, 1], tabPuissRef[10, 1], tabd[10, 1], siga455, sigb455)
-tabTheta[11,:] = (tabPuissInc[11,0]-tabPuissRef[11,0])/(.5*a573*tabd[11,0]**2 + b573*tabd[11,0]), incert_theta(tabPuissInc[11, 1], tabPuissRef[11, 1], tabd[11, 1], siga573, sigb573)
-tabTheta[12,:] = (tabPuissInc[12,0]-tabPuissRef[12,0])/(.5*a665*tabd[12,0]**2 + b665*tabd[12,0]), incert_theta(tabPuissInc[12, 1], tabPuissRef[12, 1], tabd[12, 1], siga665, sigb665)
-tabTheta[13,:] = (tabPuissInc[13,0]-tabPuissRef[13,0])/(.5*a766*tabd[13,0]**2 + b766*tabd[13,0]), incert_theta(tabPuissInc[13, 1], tabPuissRef[13, 1], tabd[13, 1], siga766, sigb766)
-tabTheta[14,:] = (tabPuissInc[14,0]-tabPuissRef[14,0])/(.5*a880*tabd[14,0]**2 + b880*tabd[14,0]), incert_theta(tabPuissInc[14, 1], tabPuissRef[14, 1], tabd[14, 1], siga880, sigb880)
-tabTheta[15,:] = (tabPuissInc[15,0]-tabPuissRef[15,0])/(.5*a1024*tabd[15,0]**2 + b1024*tabd[15,0]), incert_theta(tabPuissInc[15, 1], tabPuissRef[15, 1], tabd[15, 1], siga1024, sigb1024)
+tabTheta[0,:] = (tabPuissInc[0,0]-tabPuissRef[0,0])/(2*np.pi*15e-3*(.5*a1*tabd[0,0]**2 + b1*tabd[0,0])), incert_theta(tabPuissInc[0, 1], tabPuissRef[0, 1], tabd[0, 1], siga1, sigb1)
+tabTheta[1,:] = (tabPuissInc[1,0]-tabPuissRef[1,0])/(2*np.pi*15e-3*(.5*a2*tabd[1,0]**2 + b2*tabd[1,0])), incert_theta(tabPuissInc[1, 1], tabPuissRef[1, 1], tabd[1, 1], siga2, sigb2)
+tabTheta[2,:] = (tabPuissInc[2,0]-tabPuissRef[2,0])/(2*np.pi*15e-3*(.5*a3*tabd[2,0]**2 + b3*tabd[2,0])), incert_theta(tabPuissInc[2, 1], tabPuissRef[2, 1], tabd[2, 1], siga3, sigb3)
+tabTheta[3,:] = (tabPuissInc[3,0]-tabPuissRef[3,0])/(2*np.pi*15e-3*(.5*a4*tabd[3,0]**2 + b4*tabd[3,0])), incert_theta(tabPuissInc[3, 1], tabPuissRef[3, 1], tabd[3, 1], siga4, sigb4)
+tabTheta[4,:] = (tabPuissInc[4,0]-tabPuissRef[4,0])/(2*np.pi*15e-3*(.5*a5*tabd[4,0]**2 + b5*tabd[4,0])), incert_theta(tabPuissInc[4, 1], tabPuissRef[4, 1], tabd[4, 1], siga5, sigb5)
+tabTheta[5,:] = (tabPuissInc[5,0]-tabPuissRef[5,0])/(2*np.pi*15e-3*(.5*a6*tabd[5,0]**2 + b6*tabd[5,0])), incert_theta(tabPuissInc[5, 1], tabPuissRef[5, 1], tabd[5, 1], siga6, sigb6)
+tabTheta[6,:] = (tabPuissInc[6,0]-tabPuissRef[6,0])/(2*np.pi*15e-3*(.5*a7*tabd[6,0]**2 + b7*tabd[6,0])), incert_theta(tabPuissInc[6, 1], tabPuissRef[6, 1], tabd[6, 1], siga7, sigb7)
+tabTheta[7,:] = (tabPuissInc[7,0]-tabPuissRef[7,0])/(2*np.pi*15e-3*(.5*a163*tabd[7,0]**2 + b163*tabd[7,0])), incert_theta(tabPuissInc[7, 1], tabPuissRef[7, 1], tabd[7, 1], siga163, sigb163)
+tabTheta[8,:] = (tabPuissInc[8,0]-tabPuissRef[8,0])/(2*np.pi*15e-3*(.5*a261*tabd[8,0]**2 + b261*tabd[8,0])), incert_theta(tabPuissInc[8, 1], tabPuissRef[8, 1], tabd[8, 1], siga261, sigb261)
+tabTheta[9,:] = (tabPuissInc[9,0]-tabPuissRef[9,0])/(2*np.pi*15e-3*(.5*a363*tabd[9,0]**2 + b363*tabd[9,0])), incert_theta(tabPuissInc[9, 1], tabPuissRef[9, 1], tabd[9, 1], siga363, sigb363)
+tabTheta[10,:] = (tabPuissInc[10,0]-tabPuissRef[10,0])/(2*np.pi*15e-3*(.5*a455*tabd[10,0]**2 + b455*tabd[10,0])), incert_theta(tabPuissInc[10, 1], tabPuissRef[10, 1], tabd[10, 1], siga455, sigb455)
+tabTheta[11,:] = (tabPuissInc[11,0]-tabPuissRef[11,0])/(2*np.pi*15e-3*(.5*a573*tabd[11,0]**2 + b573*tabd[11,0])), incert_theta(tabPuissInc[11, 1], tabPuissRef[11, 1], tabd[11, 1], siga573, sigb573)
+tabTheta[12,:] = (tabPuissInc[12,0]-tabPuissRef[12,0])/(2*np.pi*15e-3*(.5*a665*tabd[12,0]**2 + b665*tabd[12,0])), incert_theta(tabPuissInc[12, 1], tabPuissRef[12, 1], tabd[12, 1], siga665, sigb665)
+tabTheta[13,:] = (tabPuissInc[13,0]-tabPuissRef[13,0])/(2*np.pi*15e-3*(.5*a766*tabd[13,0]**2 + b766*tabd[13,0])), incert_theta(tabPuissInc[13, 1], tabPuissRef[13, 1], tabd[13, 1], siga766, sigb766)
+tabTheta[14,:] = (tabPuissInc[14,0]-tabPuissRef[14,0])/(2*np.pi*15e-3*(.5*a880*tabd[14,0]**2 + b880*tabd[14,0])), incert_theta(tabPuissInc[14, 1], tabPuissRef[14, 1], tabd[14, 1], siga880, sigb880)
+tabTheta[15,:] = (tabPuissInc[15,0]-tabPuissRef[15,0])/(2*np.pi*15e-3*(.5*a1024*tabd[15,0]**2 + b1024*tabd[15,0])), incert_theta(tabPuissInc[15, 1], tabPuissRef[15, 1], tabd[15, 1], siga1024, sigb1024)
 print(tabTheta)
 

@@ -19,24 +19,31 @@ def fourier(tab, forme):
 
 	if forme == 'Sinus':
 		plt.plot(t, np.sin(2*np.pi*f*t), color='k')
-		fctexp = np.empty(len(t))		#future fct d'onde 
-		for i in range(len(tab)): 		#boucle sur chaque n
-			if tab[i,0]<0: 				#si phin<0, phin = 0
-				fctexp += tab[i,1]*np.sqrt(2)*np.cos(tab[i,0]*omega*t)
-			else: 
-				fctexp += tab[i,1]*np.sqrt(2)*np.cos(tab[i,0]*omega*t + np.radians(tab[i,3]))
+		#fctexp = np.empty(len(t))		#future fct d'onde
+		fctexp = tab[0,1]*np.sqrt(2)*np.cos(tab[0,0]*omega*t + np.radians(tab[0,3]))
+		print(fctexp)
+		# for i in range(len(tab)): 		#boucle sur chaque n
+		# 	if tab[i,3]<0: 				#si phin<0, phin = 0
+		# 		fctexp += tab[i,1]*np.sqrt(2)*np.cos(tab[i,0]*omega*t)
+		# 	else: 
+		# 		fctexp += tab[i,1]*np.sqrt(2)*np.cos(tab[i,0]*omega*t + np.radians(tab[i,3]))
 
 	elif forme == 'Carrée':
 		plt.plot(t, (-1)*signal.square(2*np.pi*f*t), color='k')
-		fctexp = np.empty(len(t))				
+		fctexp = np.empty(len(t))	
 		for i in range(len(tab)): 		
 			if (tab[i,0]%2) == 0: 	#on enleve les n pairs pour la fct carree
 				fctexp += 0
+				print('-pairs', fctexp)
 			else: 
+				print('phi', tab[i,3])
 				if tab[i,3]<0: 				#si phin<0, phin = 0
 					fctexp += tab[i,1]*np.sqrt(2)*np.cos(tab[i,0]*omega*t)
+					print('-phin neg', fctexp)
 				else: 
 					fctexp += tab[i,1]*np.sqrt(2)*np.cos(tab[i,0]*omega*t + np.radians(tab[i,3]))
+					print('normal', fctexp)
+					
 
 	elif forme == 'Triangulaire symétrique':
 		plt.plot(t, (-1)*signal.sawtooth(2*np.pi*f*t, .5), color='k')	#0.5 for triangle wave, *(-1) pour la retourner (mettre par dessus nos donnees)
@@ -50,7 +57,6 @@ def fourier(tab, forme):
 				else: 
 					fctexp += tab[i,1]*np.sqrt(2)*np.cos(tab[i,0]*omega*t + np.radians(tab[i,3]))
 			
-
 	elif forme == 'Triangulaire asymétrique':
 		plt.plot(t, signal.sawtooth(2*np.pi*f*t, 0), color='k')		#0 for falling ramp, 1 for rising ramp
 		fctexp = np.empty(len(t))		#future fct d'onde 
@@ -58,7 +64,7 @@ def fourier(tab, forme):
 			if (tab[i,0]%2) == 0: 	#on enleve les n pairs pour la fct triangulaire
 				fctexp += 0
 			else: 
-				if tab[i,3]<0: 				#si phin<0, phin = 0
+				if tab[i,3]<=0: 				#si phin<0, phin = 0
 					fctexp += tab[i,1]*np.sqrt(2)*np.cos(tab[i,0]*omega*t)
 				else: 
 					fctexp += tab[i,1]*np.sqrt(2)*np.cos(tab[i,0]*omega*t + np.radians(tab[i,3]))
